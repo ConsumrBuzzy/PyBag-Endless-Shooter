@@ -2,6 +2,7 @@ import pygame
 import random
 import math
 import asyncio
+from pybag import App
 
 # Initialize Pygame
 pygame.init()
@@ -276,8 +277,8 @@ class Explosion(pygame.sprite.Sprite):
                 self.image = self.images[self.frame_index]
 
 # --- Game Setup ---
-screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
-pygame.display.set_caption("Endless Top-Down Shooter")
+app = App("Endless Top-Down Shooter", SCREEN_WIDTH, SCREEN_HEIGHT)
+screen = app.screen
 clock = pygame.time.Clock()
 
 # Sprite groups
