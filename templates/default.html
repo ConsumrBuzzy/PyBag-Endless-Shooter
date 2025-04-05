@@ -23,11 +23,24 @@
             color: white;
             font-family: Arial, sans-serif;
             text-align: center;
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+        }
+        #debug {
+            color: white;
+            font-family: Arial, sans-serif;
+            position: absolute;
+            top: 10px;
+            left: 10px;
+            font-size: 12px;
         }
     </style>
 </head>
 <body>
     <div id="loading">Loading game...</div>
+    <div id="debug"></div>
     <script type="text/javascript">
         var Module = {
             canvas: (function() {
@@ -39,9 +52,11 @@
             })(),
             print: function(text) {
                 console.log(text);
+                document.getElementById('debug').innerHTML += text + '<br>';
             },
             printErr: function(text) {
                 console.error(text);
+                document.getElementById('debug').innerHTML += '<span style="color:red">' + text + '</span><br>';
             },
             setStatus: function(text) {
                 var status = document.getElementById('loading');
@@ -53,6 +68,12 @@
             monitorRunDependencies: function(left) {
                 this.totalDependencies = Math.max(this.totalDependencies, left);
                 Module.setStatus(left ? 'Preparing... (' + (this.totalDependencies-left) + '/' + this.totalDependencies + ')' : 'All downloads complete.');
+            },
+            onRuntimeInitialized: function() {
+                Module.setStatus('Game ready!');
+                setTimeout(function() {
+                    document.getElementById('loading').style.display = 'none';
+                }, 1000);
             }
         };
         Module.setStatus('Downloading...');
