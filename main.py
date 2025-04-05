@@ -46,6 +46,36 @@ def distance(x1, y1, x2, y2):
     return math.sqrt((x2 - x1) ** 2 + (y2 - y1) ** 2)
 
 # --- Game Object Classes ---
+class DebugButton:
+    def __init__(self):
+        self.rect = pygame.Rect(SCREEN_WIDTH - 100, 10, 80, 30)
+        self.text = "Debug: ON"
+        self.active = True
+        self.font = pygame.font.Font(None, 24)
+
+    def draw(self, surface):
+        # Draw button background
+        pygame.draw.rect(surface, WHITE, self.rect, 2)
+        # Draw button text
+        text_surface = self.font.render(self.text, True, WHITE)
+        text_rect = text_surface.get_rect(center=self.rect.center)
+        surface.blit(text_surface, text_rect)
+
+    def handle_event(self, event):
+        if event.type == pygame.FINGERDOWN:
+            # Convert touch position to screen coordinates
+            touch_x = event.x * SCREEN_WIDTH
+            touch_y = event.y * SCREEN_HEIGHT
+            if self.rect.collidepoint(touch_x, touch_y):
+                self.toggle()
+        elif event.type == pygame.MOUSEBUTTONDOWN:
+            if event.button == 1 and self.rect.collidepoint(event.pos):
+                self.toggle()
+
+    def toggle(self):
+        self.active = not self.active
+        self.text = "Debug: ON" if self.active else "Debug: OFF"
+
 class Player(pygame.sprite.Sprite):
     def __init__(self):
         super().__init__()
@@ -123,8 +153,11 @@ class Player(pygame.sprite.Sprite):
             self.touch_pos = (event.x * SCREEN_WIDTH, event.y * SCREEN_HEIGHT)
             self.is_shooting = True
 
-    def draw_debug(self, surface):
+    def draw_debug(self, surface, debug_active):
         """Draw debug line to touch/mouse position"""
+        if not debug_active:
+            return
+            
         if self.touch_pos:
             target_x, target_y = self.touch_pos
         else:
@@ -265,6 +298,7 @@ async def main():
     score = 0
     game_over = False
     font = pygame.font.Font(None, 36)
+    debug_button = DebugButton()
 
     while running:
         for event in pygame.event.get():
@@ -288,12 +322,14 @@ async def main():
             # Handle touch events
             if event.type in (pygame.FINGERDOWN, pygame.FINGERUP, pygame.FINGERMOTION):
                 player.handle_touch(event)
+                debug_button.handle_event(event)
             
             # Mouse events (for desktop)
             if event.type == pygame.MOUSEBUTTONDOWN:
                 if not game_over:
                     if event.button == 1:  # Left click
                         player.is_shooting = True
+                        debug_button.handle_event(event)
             elif event.type == pygame.MOUSEBUTTONUP:
                 if event.button == 1:  # Left click
                     player.is_shooting = False
@@ -334,8 +370,9 @@ async def main():
         score_text = font.render(f"Score: {score}", True, WHITE)
         screen.blit(score_text, (10, 10))
         
-        # Draw debug line
-        player.draw_debug(screen)
+        # Draw debug line and button
+        player.draw_debug(screen, debug_button.active)
+        debug_button.draw(screen)
         
         # Continuous shooting while touch/mouse is held
         if player.is_shooting:
