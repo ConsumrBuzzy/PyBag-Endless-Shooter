@@ -19,6 +19,7 @@ BULLET_SPEED = 7
 SPAWN_RATE = 1000
 MIN_SPAWN_DISTANCE = 200  # Minimum distance from player for enemy spawn
 MAX_SPAWN_ATTEMPTS = 10   # Maximum attempts to find valid spawn position
+FIRE_RATE = 250  # Time in milliseconds between shots
 WHITE = (255, 255, 255)
 BLACK = (0, 0, 0)
 RED = (255, 0, 0)
@@ -62,6 +63,7 @@ class Player(pygame.sprite.Sprite):
         self.angle = 0
         self.is_shooting = False
         self.touch_pos = None
+        self.last_shot_time = 0  # Track when the last shot was fired
 
     def update(self):
         """Update player rotation and shooting."""
@@ -118,10 +120,18 @@ class Player(pygame.sprite.Sprite):
         tip_y = self.rect.centery + math.sin(angle_rad) * PLAYER_SIZE/2
         return (tip_x, tip_y)
 
+    def can_shoot(self):
+        """Check if enough time has passed since last shot"""
+        current_time = pygame.time.get_ticks()
+        return current_time - self.last_shot_time >= FIRE_RATE
+
     def shoot(self):
         """Create a bullet at the tip of the triangle"""
-        tip_x, tip_y = self.get_tip_position()
-        return Bullet(tip_x, tip_y, self.angle)
+        if self.can_shoot():
+            self.last_shot_time = pygame.time.get_ticks()
+            tip_x, tip_y = self.get_tip_position()
+            return Bullet(tip_x, tip_y, self.angle)
+        return None
 
     def hit(self):
         # self.hit_sound.play() # Removed sound
@@ -303,8 +313,9 @@ async def main():
         # Continuous shooting while touch/mouse is held
         if player.is_shooting:
             bullet = player.shoot()
-            bullets.add(bullet)
-            all_sprites.add(bullet)
+            if bullet:  # Only add bullet if one was created (fire rate allowed it)
+                bullets.add(bullet)
+                all_sprites.add(bullet)
 
         pygame.display.flip()
         await asyncio.sleep(0)
