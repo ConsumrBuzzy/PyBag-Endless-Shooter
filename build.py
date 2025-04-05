@@ -2,14 +2,12 @@ import os
 import subprocess
 
 def build_web():
-    # Create the build command with web-specific options
+    # Create the build command with minimal options
     cmd = [
         "pygbag",
-        "--title", "Endless Shooter",
         "--build",
-        "--template", "default",
-        "--app_name", "endless_shooter",
-        "--ume_block", "0",
+        "--no_opt",
+        "--no_archive",
         "main.py"
     ]
     
