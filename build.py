@@ -5,7 +5,9 @@ def build_web():
     # Create the build command to generate JS files
     cmd = [
         "pygbag",
-        "--port", "0",  # Use port 0 to just build without serving
+        "--build",
+        "--app_name", "endless_shooter",
+        "--package", "endless_shooter",
         "main.py"
     ]
     
