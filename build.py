@@ -2,15 +2,14 @@ import os
 import subprocess
 
 def build_web():
-    # Create the build command with CDN configuration
+    # Create the build command with local template
     cmd = [
         "pygbag",
         "--title", "Endless Shooter",
         "--build",
-        "--template", "default",
+        "--template", "templates/default.html",
         "--app_name", "endless_shooter",
         "--ume_block", "0",
-        "--cdn", "https://pygame-web.github.io/archives/",
         "main.py"
     ]
     
