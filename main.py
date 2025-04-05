@@ -46,13 +46,13 @@ def distance(x1, y1, x2, y2):
 class Player(pygame.sprite.Sprite):
     def __init__(self):
         super().__init__()
-        # Create a simple triangle pointing up (0 degrees)
+        # Create a simple triangle pointing right (0 degrees)
         self.base_image = pygame.Surface((PLAYER_SIZE, PLAYER_SIZE), pygame.SRCALPHA)
-        # Points: bottom-left, bottom-right, top-center
+        # Points: left-center, right-center, center-bottom
         pygame.draw.polygon(self.base_image, GREEN, [
-            (0, PLAYER_SIZE),  # bottom-left
-            (PLAYER_SIZE, PLAYER_SIZE),  # bottom-right
-            (PLAYER_SIZE/2, 0)  # top-center (tip)
+            (0, PLAYER_SIZE/2),  # left-center
+            (PLAYER_SIZE, PLAYER_SIZE/2),  # right-center (tip)
+            (PLAYER_SIZE/2, PLAYER_SIZE)  # center-bottom
         ])
         self.image = self.base_image
         self.rect = self.image.get_rect()
@@ -118,9 +118,10 @@ class Player(pygame.sprite.Sprite):
 
     def get_tip_position(self):
         """Calculate the position of the triangle's tip"""
-        # The tip is at (PLAYER_SIZE/2, 0) in the base image
+        # The tip is at (PLAYER_SIZE, PLAYER_SIZE/2) in the base image
         # Convert to world coordinates
         angle_rad = self.angle
+        # Calculate the offset from center to tip
         tip_x = self.rect.centerx + math.cos(angle_rad) * PLAYER_SIZE/2
         tip_y = self.rect.centery + math.sin(angle_rad) * PLAYER_SIZE/2
         return (tip_x, tip_y)
