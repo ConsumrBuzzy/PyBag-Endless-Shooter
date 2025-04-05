@@ -1,12 +1,17 @@
-from pybag import build
+import os
+import subprocess
 
-build(
-    "main.py",
-    "Endless Shooter",
-    "A mobile-friendly endless top-down shooter game",
-    "1.0.0",
-    author="Your Name",
-    icon="icon.png",  # Optional: Add an icon file
-    requirements=["pygame", "pybag"],
-    include_files=[],  # Add any additional files your game needs
-) 
+def build_web():
+    # Create the build command
+    cmd = [
+        "pygbag",
+        "--title", "Endless Shooter",
+        "--build",
+        "main.py"
+    ]
+    
+    # Run the build command
+    subprocess.run(cmd)
+
+if __name__ == "__main__":
+    build_web() 
