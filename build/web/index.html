@@ -95,18 +95,34 @@
             }
         };
 
-        // Add script loading error handling
-        var script = document.createElement('script');
-        script.src = 'endless_shooter.js';
-        script.onerror = function() {
-            document.getElementById('debug').innerHTML += '<span style="color:red">Failed to load game script!</span><br>';
-        };
-        script.onload = function() {
-            document.getElementById('debug').innerHTML += 'Game script loaded successfully<br>';
-        };
-        document.body.appendChild(script);
+        // Try multiple possible script names
+        var scriptNames = [
+            'endless_shooter.js',
+            'web.pygame.endless_shooter.js',
+            'main.js',
+            'game.js'
+        ];
+
+        function tryLoadScript(index) {
+            if (index >= scriptNames.length) {
+                document.getElementById('debug').innerHTML += '<span style="color:red">Failed to load any game script!</span><br>';
+                return;
+            }
+
+            var script = document.createElement('script');
+            script.src = scriptNames[index];
+            script.onerror = function() {
+                document.getElementById('debug').innerHTML += '<span style="color:red">Failed to load ' + scriptNames[index] + '</span><br>';
+                tryLoadScript(index + 1);
+            };
+            script.onload = function() {
+                document.getElementById('debug').innerHTML += 'Game script ' + scriptNames[index] + ' loaded successfully<br>';
+            };
+            document.body.appendChild(script);
+        }
 
         Module.setStatus('Initializing...');
+        tryLoadScript(0);
     </script>
 </body>
 </html> 
