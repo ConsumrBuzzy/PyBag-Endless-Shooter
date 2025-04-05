@@ -2,7 +2,7 @@ import os
 import subprocess
 
 def build_web():
-    # Create the build command with string paths
+    # Create the build command with serve flag
     cmd = [
         "pygbag",
         "--title", "Endless Shooter",
@@ -11,6 +11,7 @@ def build_web():
         "--app_name", "endless_shooter",
         "--ume_block", "0",
         "--html",
+        "--serve",
         "main.py"
     ]
     
