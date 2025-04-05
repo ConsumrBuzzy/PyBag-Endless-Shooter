@@ -48,7 +48,8 @@ class Player(pygame.sprite.Sprite):
         super().__init__()
         # Create the base triangle surface
         self.base_image = pygame.Surface((PLAYER_SIZE, PLAYER_SIZE), pygame.SRCALPHA)
-        pygame.draw.polygon(self.base_image, GREEN, [(0, PLAYER_SIZE), (PLAYER_SIZE / 2, 0), (PLAYER_SIZE, PLAYER_SIZE)])
+        # Draw triangle pointing right (0 degrees)
+        pygame.draw.polygon(self.base_image, GREEN, [(0, PLAYER_SIZE/2), (PLAYER_SIZE, PLAYER_SIZE/2), (PLAYER_SIZE/2, 0)])
         self.image = self.base_image
         self.rect = self.image.get_rect()
         self.rect.center = (SCREEN_WIDTH / 2, SCREEN_HEIGHT / 2)
@@ -56,7 +57,7 @@ class Player(pygame.sprite.Sprite):
         self.angle = 0
         self.touch_start_pos = None
         self.is_shooting = False
-        self.tip_offset = pygame.math.Vector2(0, -PLAYER_SIZE / 2)  # Offset for the tip of the triangle
+        self.tip_offset = pygame.math.Vector2(PLAYER_SIZE/2, 0)  # Offset for the tip of the triangle
 
     def update(self):
         """Update player position and rotation."""
@@ -102,6 +103,16 @@ class Player(pygame.sprite.Sprite):
         # Rotate the base image
         self.image = pygame.transform.rotate(self.base_image, -math.degrees(self.angle))
         self.rect = self.image.get_rect(center=self.rect.center)
+
+    def draw_debug(self, surface):
+        """Draw debug line to mouse position"""
+        mouse_x, mouse_y = pygame.mouse.get_pos()
+        pygame.draw.line(surface, RED, self.rect.center, (mouse_x, mouse_y), 2)
+        
+        # Draw the tip position where bullets should spawn
+        rotated_offset = self.tip_offset.rotate(-math.degrees(self.angle))
+        tip_pos = pygame.math.Vector2(self.rect.center) + rotated_offset
+        pygame.draw.circle(surface, BLUE, (int(tip_pos.x), int(tip_pos.y)), 5)
 
     def shoot(self):
         """Create a bullet."""
@@ -276,6 +287,10 @@ async def main():
         # Display score
         score_text = font.render(f"Score: {score}", True, WHITE)
         screen.blit(score_text, (10, 10))
+        
+        # Draw debug line
+        player.draw_debug(screen)
+        
         if player.is_shooting:
             bullet = player.shoot()
             bullets.add(bullet)
