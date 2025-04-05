@@ -19,7 +19,7 @@ BULLET_SPEED = 7
 SPAWN_RATE = 1000
 MIN_SPAWN_DISTANCE = 200  # Minimum distance from player for enemy spawn
 MAX_SPAWN_ATTEMPTS = 10   # Maximum attempts to find valid spawn position
-FIRE_RATE = 250  # Time in milliseconds between shots
+FIRE_RATE = 200  # Time in milliseconds between shots (reduced from 250)
 WHITE = (255, 255, 255)
 BLACK = (0, 0, 0)
 RED = (255, 0, 0)
@@ -64,6 +64,8 @@ class Player(pygame.sprite.Sprite):
         self.is_shooting = False
         self.touch_pos = None
         self.last_shot_time = 0  # Track when the last shot was fired
+        self.base_color = GREEN
+        self.current_color = GREEN
 
     def update(self):
         """Update player rotation and shooting."""
@@ -74,6 +76,30 @@ class Player(pygame.sprite.Sprite):
             target_x, target_y = pygame.mouse.get_pos()
             
         self.angle = math.atan2(target_y - self.rect.centery, target_x - self.rect.centerx)
+        
+        # Update color based on cooldown
+        current_time = pygame.time.get_ticks()
+        time_since_shot = current_time - self.last_shot_time
+        cooldown_progress = min(1.0, time_since_shot / FIRE_RATE)
+        
+        # Interpolate between YELLOW (cooldown) and GREEN (ready)
+        if cooldown_progress < 1.0:
+            # During cooldown, fade from yellow to green
+            self.current_color = (
+                int(GREEN[0] * cooldown_progress + YELLOW[0] * (1 - cooldown_progress)),
+                int(GREEN[1] * cooldown_progress + YELLOW[1] * (1 - cooldown_progress)),
+                int(GREEN[2] * cooldown_progress + YELLOW[2] * (1 - cooldown_progress))
+            )
+        else:
+            self.current_color = GREEN
+        
+        # Redraw the triangle with current color
+        self.base_image = pygame.Surface((PLAYER_SIZE, PLAYER_SIZE), pygame.SRCALPHA)
+        pygame.draw.polygon(self.base_image, self.current_color, [
+            (0, PLAYER_SIZE),  # left-bottom
+            (0, 0),  # left-top
+            (PLAYER_SIZE, PLAYER_SIZE/2)  # right-center (sharp tip)
+        ])
         
         # Rotate the triangle to point at target
         self.image = pygame.transform.rotate(self.base_image, -math.degrees(self.angle))
@@ -129,6 +155,7 @@ class Player(pygame.sprite.Sprite):
         """Create a bullet at the tip of the triangle"""
         if self.can_shoot():
             self.last_shot_time = pygame.time.get_ticks()
+            self.current_color = YELLOW  # Flash yellow when shooting
             tip_x, tip_y = self.get_tip_position()
             return Bullet(tip_x, tip_y, self.angle)
         return None
