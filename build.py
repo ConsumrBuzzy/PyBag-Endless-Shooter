@@ -2,18 +2,11 @@ import os
 import subprocess
 
 def build_web():
-    # Create the build command with correct paths and settings
+    # Create the build command with minimal flags
     cmd = [
         "pygbag",
-        "--title", "Endless Shooter",
         "--build",
-        "--template", os.path.abspath("templates/default.html"),
-        "--app_name", "endless_shooter",
-        "--ume_block", "0",
-        "--package", "web.pygame.endless_shooter",
-        "--bind", "localhost:8000",
-        "--cache", "no",
-        os.path.abspath("main.py")
+        "main.py"
     ]
     
     print("Building game...")
