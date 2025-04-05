@@ -1,12 +1,8 @@
 import os
 import subprocess
-from pathlib import Path
 
 def build_web():
-    # Get the absolute path to main.py
-    main_script = Path("main.py").resolve()
-    
-    # Create the build command with correct path handling
+    # Create the build command with string paths
     cmd = [
         "pygbag",
         "--title", "Endless Shooter",
@@ -15,8 +11,7 @@ def build_web():
         "--app_name", "endless_shooter",
         "--ume_block", "0",
         "--html",
-        "--no_archive",
-        str(main_script)
+        "main.py"
     ]
     
     # Run the build command
