@@ -3,7 +3,7 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>{{ title }}</title>
+    <title>Endless Shooter</title>
     <style>
         body {
             margin: 0;
@@ -97,7 +97,7 @@
 
         // Add script loading error handling
         var script = document.createElement('script');
-        script.src = '{{ app_name }}.js';
+        script.src = 'endless_shooter.js';
         script.onerror = function() {
             document.getElementById('debug').innerHTML += '<span style="color:red">Failed to load game script!</span><br>';
         };

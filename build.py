@@ -11,11 +11,22 @@ def build_web():
         "--app_name", "endless_shooter",
         "--ume_block", "0",
         "--package", "web.pygame.endless_shooter",
+        "--bind", "localhost:8000",
+        "--cache", "no",
         os.path.abspath("main.py")
     ]
     
+    print("Building game...")
+    print("Command:", " ".join(cmd))
+    
     # Run the build command
-    subprocess.run(cmd)
+    result = subprocess.run(cmd, capture_output=True, text=True)
+    
+    # Print output for debugging
+    print("\nOutput:")
+    print(result.stdout)
+    print("\nErrors:")
+    print(result.stderr)
 
 if __name__ == "__main__":
     build_web() 
