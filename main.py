@@ -17,6 +17,8 @@ PLAYER_SPEED = 5
 ENEMY_SPEED = 2
 BULLET_SPEED = 7
 SPAWN_RATE = 1000
+MIN_SPAWN_DISTANCE = 200  # Minimum distance from player for enemy spawn
+MAX_SPAWN_ATTEMPTS = 10   # Maximum attempts to find valid spawn position
 WHITE = (255, 255, 255)
 BLACK = (0, 0, 0)
 RED = (255, 0, 0)
@@ -46,71 +48,61 @@ def distance(x1, y1, x2, y2):
 class Player(pygame.sprite.Sprite):
     def __init__(self):
         super().__init__()
-        # Create a simple triangle pointing right (0 degrees)
+        # Create an isosceles triangle pointing right (0 degrees)
         self.base_image = pygame.Surface((PLAYER_SIZE, PLAYER_SIZE), pygame.SRCALPHA)
-        # Points: left-center, right-center, center-bottom
+        # Points: left-bottom, left-top, right-center (tip)
         pygame.draw.polygon(self.base_image, GREEN, [
-            (0, PLAYER_SIZE/2),  # left-center
-            (PLAYER_SIZE, PLAYER_SIZE/2),  # right-center (tip)
-            (PLAYER_SIZE/2, PLAYER_SIZE)  # center-bottom
+            (0, PLAYER_SIZE),  # left-bottom
+            (0, 0),  # left-top
+            (PLAYER_SIZE, PLAYER_SIZE/2)  # right-center (sharp tip)
         ])
         self.image = self.base_image
         self.rect = self.image.get_rect()
-        self.rect.center = (SCREEN_WIDTH / 2, SCREEN_HEIGHT / 2)
-        self.speed = PLAYER_SPEED
+        self.rect.center = (SCREEN_WIDTH / 2, SCREEN_HEIGHT / 2)  # Always centered
         self.angle = 0
-        self.touch_start_pos = None
         self.is_shooting = False
+        self.touch_pos = None
 
     def update(self):
-        """Update player position and rotation."""
-        # Movement
-        keys = pygame.key.get_pressed()
-        dx = 0
-        dy = 0
-
-        if keys[pygame.K_w]:
-            dy -= 1
-        if keys[pygame.K_s]:
-            dy += 1
-        if keys[pygame.K_a]:
-            dx -= 1
-        if keys[pygame.K_d]:
-            dx += 1
-
-        # Touch movement
-        if self.touch_start_pos:
-            touch_x, touch_y = self.touch_start_pos
-            current_touch_pos = pygame.mouse.get_pos()
-            move_x = current_touch_pos[0] - touch_x
-            move_y = current_touch_pos[1] - touch_y
-            if abs(move_x) > 10 or abs(move_y) > 10:
-                dx = move_x / 10
-                dy = move_y / 10
-
-        # Normalize diagonal movement
-        if dx != 0 and dy != 0:
-            dx *= 0.707
-            dy *= 0.707
-
-        self.rect.x += dx * self.speed
-        self.rect.y += dy * self.speed
-
-        # Keep player on screen
-        self.rect.clamp_ip(screen.get_rect())
-
-        # Calculate angle to mouse
-        mouse_x, mouse_y = pygame.mouse.get_pos()
-        self.angle = math.atan2(mouse_y - self.rect.centery, mouse_x - self.rect.centerx)
+        """Update player rotation and shooting."""
+        # Calculate angle to touch or mouse position
+        if self.touch_pos:
+            target_x, target_y = self.touch_pos
+        else:
+            target_x, target_y = pygame.mouse.get_pos()
+            
+        self.angle = math.atan2(target_y - self.rect.centery, target_x - self.rect.centerx)
         
-        # Rotate the triangle to point at mouse
+        # Rotate the triangle to point at target
         self.image = pygame.transform.rotate(self.base_image, -math.degrees(self.angle))
         self.rect = self.image.get_rect(center=self.rect.center)
 
+    def handle_touch(self, event):
+        """Handle touch events for mobile controls"""
+        if event.type == pygame.FINGERDOWN:
+            # Convert touch position to screen coordinates
+            touch_x = event.x * SCREEN_WIDTH
+            touch_y = event.y * SCREEN_HEIGHT
+            self.touch_pos = (touch_x, touch_y)
+            self.is_shooting = True
+                
+        elif event.type == pygame.FINGERUP:
+            self.touch_pos = None
+            self.is_shooting = False
+                
+        elif event.type == pygame.FINGERMOTION:
+            # Update touch position
+            self.touch_pos = (event.x * SCREEN_WIDTH, event.y * SCREEN_HEIGHT)
+            self.is_shooting = True
+
     def draw_debug(self, surface):
-        """Draw debug line to mouse position"""
-        mouse_x, mouse_y = pygame.mouse.get_pos()
-        pygame.draw.line(surface, RED, self.rect.center, (mouse_x, mouse_y), 2)
+        """Draw debug line to touch/mouse position"""
+        if self.touch_pos:
+            target_x, target_y = self.touch_pos
+        else:
+            target_x, target_y = pygame.mouse.get_pos()
+            
+        pygame.draw.line(surface, RED, self.rect.center, (target_x, target_y), 2)
         
         # Draw the tip position
         tip_pos = self.get_tip_position()
@@ -243,24 +235,31 @@ async def main():
                 running = False
             if event.type == pygame.USEREVENT:
                 if not game_over:
-                    x = random.randint(0, SCREEN_WIDTH)
-                    y = random.randint(0, SCREEN_HEIGHT)
-                    enemy = Enemy(x, y)
-                    enemies.add(enemy)
-                    all_sprites.add(enemy)
-            # Touch events
-            if event.type == pygame.FINGERDOWN:
-                player.touch_start_pos = event.pos
-                player.is_shooting = True
-            if event.type == pygame.FINGERUP:
-                player.touch_start_pos = None
-                player.is_shooting = False
+                    # Try to find a valid spawn position
+                    for _ in range(MAX_SPAWN_ATTEMPTS):
+                        # Generate random position
+                        x = random.randint(ENEMY_SIZE, SCREEN_WIDTH - ENEMY_SIZE)
+                        y = random.randint(ENEMY_SIZE, SCREEN_HEIGHT - ENEMY_SIZE)
+                        
+                        # Check distance from player
+                        if distance(x, y, player.rect.centerx, player.rect.centery) >= MIN_SPAWN_DISTANCE:
+                            enemy = Enemy(x, y)
+                            enemies.add(enemy)
+                            all_sprites.add(enemy)
+                            break  # Found valid position, exit the loop
+            
+            # Handle touch events
+            if event.type in (pygame.FINGERDOWN, pygame.FINGERUP, pygame.FINGERMOTION):
+                player.handle_touch(event)
+            
+            # Mouse events (for desktop)
             if event.type == pygame.MOUSEBUTTONDOWN:
                 if not game_over:
-                    if event.button == 1:
-                        bullet = player.shoot()
-                        bullets.add(bullet)
-                        all_sprites.add(bullet)
+                    if event.button == 1:  # Left click
+                        player.is_shooting = True
+            elif event.type == pygame.MOUSEBUTTONUP:
+                if event.button == 1:  # Left click
+                    player.is_shooting = False
 
         if not game_over:
             all_sprites.update()
@@ -301,6 +300,7 @@ async def main():
         # Draw debug line
         player.draw_debug(screen)
         
+        # Continuous shooting while touch/mouse is held
         if player.is_shooting:
             bullet = player.shoot()
             bullets.add(bullet)
