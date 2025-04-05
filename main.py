@@ -46,10 +46,14 @@ def distance(x1, y1, x2, y2):
 class Player(pygame.sprite.Sprite):
     def __init__(self):
         super().__init__()
-        # Create the base triangle surface
+        # Create a simple triangle pointing up (0 degrees)
         self.base_image = pygame.Surface((PLAYER_SIZE, PLAYER_SIZE), pygame.SRCALPHA)
-        # Draw triangle pointing right (0 degrees)
-        pygame.draw.polygon(self.base_image, GREEN, [(0, PLAYER_SIZE/2), (PLAYER_SIZE, PLAYER_SIZE/2), (PLAYER_SIZE/2, 0)])
+        # Points: bottom-left, bottom-right, top-center
+        pygame.draw.polygon(self.base_image, GREEN, [
+            (0, PLAYER_SIZE),  # bottom-left
+            (PLAYER_SIZE, PLAYER_SIZE),  # bottom-right
+            (PLAYER_SIZE/2, 0)  # top-center (tip)
+        ])
         self.image = self.base_image
         self.rect = self.image.get_rect()
         self.rect.center = (SCREEN_WIDTH / 2, SCREEN_HEIGHT / 2)
@@ -57,15 +61,14 @@ class Player(pygame.sprite.Sprite):
         self.angle = 0
         self.touch_start_pos = None
         self.is_shooting = False
-        self.tip_offset = pygame.math.Vector2(PLAYER_SIZE/2, 0)  # Offset for the tip of the triangle
 
     def update(self):
         """Update player position and rotation."""
+        # Movement
         keys = pygame.key.get_pressed()
         dx = 0
         dy = 0
 
-        # Keyboard movement
         if keys[pygame.K_w]:
             dy -= 1
         if keys[pygame.K_s]:
@@ -96,11 +99,11 @@ class Player(pygame.sprite.Sprite):
         # Keep player on screen
         self.rect.clamp_ip(screen.get_rect())
 
-        # Player rotation based on mouse/touch
+        # Calculate angle to mouse
         mouse_x, mouse_y = pygame.mouse.get_pos()
         self.angle = math.atan2(mouse_y - self.rect.centery, mouse_x - self.rect.centerx)
         
-        # Rotate the base image
+        # Rotate the triangle to point at mouse
         self.image = pygame.transform.rotate(self.base_image, -math.degrees(self.angle))
         self.rect = self.image.get_rect(center=self.rect.center)
 
@@ -109,17 +112,23 @@ class Player(pygame.sprite.Sprite):
         mouse_x, mouse_y = pygame.mouse.get_pos()
         pygame.draw.line(surface, RED, self.rect.center, (mouse_x, mouse_y), 2)
         
-        # Draw the tip position where bullets should spawn
-        rotated_offset = self.tip_offset.rotate(-math.degrees(self.angle))
-        tip_pos = pygame.math.Vector2(self.rect.center) + rotated_offset
-        pygame.draw.circle(surface, BLUE, (int(tip_pos.x), int(tip_pos.y)), 5)
+        # Draw the tip position
+        tip_pos = self.get_tip_position()
+        pygame.draw.circle(surface, BLUE, (int(tip_pos[0]), int(tip_pos[1])), 5)
+
+    def get_tip_position(self):
+        """Calculate the position of the triangle's tip"""
+        # The tip is at (PLAYER_SIZE/2, 0) in the base image
+        # Convert to world coordinates
+        angle_rad = self.angle
+        tip_x = self.rect.centerx + math.cos(angle_rad) * PLAYER_SIZE/2
+        tip_y = self.rect.centery + math.sin(angle_rad) * PLAYER_SIZE/2
+        return (tip_x, tip_y)
 
     def shoot(self):
-        """Create a bullet."""
-        # Calculate the position of the tip of the triangle
-        rotated_offset = self.tip_offset.rotate(-math.degrees(self.angle))
-        tip_pos = pygame.math.Vector2(self.rect.center) + rotated_offset
-        return Bullet(tip_pos.x, tip_pos.y, self.angle)
+        """Create a bullet at the tip of the triangle"""
+        tip_x, tip_y = self.get_tip_position()
+        return Bullet(tip_x, tip_y, self.angle)
 
     def hit(self):
         # self.hit_sound.play() # Removed sound
