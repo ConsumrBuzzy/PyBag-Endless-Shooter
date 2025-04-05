@@ -2,10 +2,10 @@ import os
 import subprocess
 
 def build_web():
-    # Create the build command with minimal flags
+    # Create the build command to generate JS files
     cmd = [
         "pygbag",
-        "--build",
+        "--port", "0",  # Use port 0 to just build without serving
         "main.py"
     ]
     
