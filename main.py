@@ -323,14 +323,10 @@ async def main():
                 bullets.add(bullet)
                 all_sprites.add(bullet)
         
-        # Update display
-        pygame.display.flip()
-        
-        # Control frame rate and yield to browser
+        # Update display and yield to browser
+        pygame.display.update()
         clock.tick(60)
-        await asyncio.sleep(0)
-
-        # End of frame
+        await asyncio.sleep(0)  # Keep this 0
 
 if __name__ == "__main__":
     asyncio.run(main())
