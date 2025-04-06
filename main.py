@@ -285,9 +285,9 @@ async def main():
         enemy_hits = pygame.sprite.groupcollide(enemies, bullets, True, True)
         for enemy in enemy_hits:
             score += 10
-                explosion = Explosion(enemy.rect.centerx, enemy.rect.centery)
-                all_sprites.add(explosion)
-                explosions.add(explosion)
+            explosion = Explosion(enemy.rect.centerx, enemy.rect.centery)
+            all_sprites.add(explosion)
+            explosions.add(explosion)
 
             player_hits = pygame.sprite.spritecollide(player, enemies, True)
             if player_hits:
