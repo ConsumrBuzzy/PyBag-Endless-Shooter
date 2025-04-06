@@ -306,23 +306,31 @@ async def main():
                 await asyncio.sleep(3)
                 running = False
 
+        # Clear and draw
         screen.fill(BLACK)
         all_sprites.draw(screen)
 
+        # Draw UI
         score_text = font.render(f"Score: {score}", True, WHITE)
         screen.blit(score_text, (10, 10))
-        
         player.draw_debug(screen, debug_button.active)
         debug_button.draw(screen)
         
+        # Handle shooting
         if player.is_shooting:
             bullet = player.shoot()
             if bullet:
                 bullets.add(bullet)
                 all_sprites.add(bullet)
-
+        
+        # Update display
         pygame.display.flip()
+        
+        # Control frame rate and yield to browser
+        clock.tick(60)
         await asyncio.sleep(0)
+
+        # End of frame
         clock.tick(FPS)
 
     pygame.quit()
