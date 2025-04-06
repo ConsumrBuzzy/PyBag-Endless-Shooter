@@ -245,6 +245,7 @@ async def main():
     debug_button = DebugButton()
 
     while running:
+        # Handle events
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 running = False
@@ -273,12 +274,17 @@ async def main():
                 if event.button == 1:
                     player.is_shooting = False
 
+        # Update game state
         if not game_over:
             all_sprites.update()
+            
+        # Yield control to browser
+        await asyncio.sleep(0)
 
-            enemy_hits = pygame.sprite.groupcollide(enemies, bullets, True, True)
-            for enemy in enemy_hits:
-                score += 10
+        # Handle collisions and scoring
+        enemy_hits = pygame.sprite.groupcollide(enemies, bullets, True, True)
+        for enemy in enemy_hits:
+            score += 10
                 explosion = Explosion(enemy.rect.centerx, enemy.rect.centery)
                 all_sprites.add(explosion)
                 explosions.add(explosion)
