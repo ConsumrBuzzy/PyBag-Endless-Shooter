@@ -12,6 +12,12 @@ def build_wasm():
             "-m", "pygbag",
             "--build",
             "--app_name", "endless_shooter",
+            "--title", "Endless Shooter",
+            "--icon", "favicon.png",
+            "--html", "template_mobile.html",
+            "--package", "com.endlessshooter.game",
+            "--ume_block=1",
+            "--can_close",
             "main.py"
         ]
         
