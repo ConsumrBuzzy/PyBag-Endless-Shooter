@@ -331,9 +331,6 @@ async def main():
         await asyncio.sleep(0)
 
         # End of frame
-        clock.tick(FPS)
-
-    pygame.quit()
 
 if __name__ == "__main__":
     asyncio.run(main())
