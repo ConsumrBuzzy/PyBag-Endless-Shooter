@@ -13,11 +13,10 @@ def build_wasm():
             "--build",
             "--app_name", "endless_shooter",
             "--title", "Endless Shooter",
-            "--icon", "favicon.png",
-            "--html", "template_mobile.html",
             "--package", "com.endlessshooter.game",
-            "--ume_block=1",
-            "--can_close",
+            "--ume_block", "1",
+            "--can_close", "1",
+            "--template", "template_mobile.html",
             "main.py"
         ]
         
