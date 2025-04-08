@@ -5,9 +5,20 @@ import asyncio
 import sys
 import platform
 
-# Initialize Pygame
+# Initialize Pygame with web-specific handling
 pygame.init()
-# pygame.mixer.init() # Removed mixer init
+
+# Web-specific initialization
+if sys.platform == "emscripten":
+    import platform
+    import asyncio
+    # Set display mode for web
+    canvas = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT), pygame.SCALED)
+    pygame.display.set_caption("Endless Top-Down Shooter")
+else:
+    # Normal desktop initialization
+    screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
+    pygame.display.set_caption("Endless Top-Down Shooter")
 
 # --- Constants ---
 SCREEN_WIDTH = 800
@@ -278,8 +289,7 @@ class Explosion(pygame.sprite.Sprite):
                 self.image = self.images[self.frame_index]
 
 # --- Game Setup ---
-screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
-pygame.display.set_caption("Endless Top-Down Shooter")
+# Display initialization moved to platform-specific section above
 clock = pygame.time.Clock()
 
 # Sprite groups
