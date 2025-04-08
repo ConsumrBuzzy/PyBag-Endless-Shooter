@@ -19,8 +19,8 @@ def main():
            "--title", "Endless Top-Down Shooter",
            "--cache", "true",
            "--ume_block", "0",   # Don't block on user media
-           "--can_close", "1",   # Allow window to close
-           "--archive", "1",     # Create downloadable archive
+           "--can_close", "true",   # Allow window to close
+           "--archive",          # Create downloadable archive
            "--bind", "0.0.0.0",  # Bind to all interfaces
            current_dir]
     
