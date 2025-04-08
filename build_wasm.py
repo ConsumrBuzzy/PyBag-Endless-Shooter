@@ -13,15 +13,13 @@ def main():
     # Get the directory containing main.py
     current_dir = os.path.dirname(os.path.abspath(__file__))
     
-    # Build command with proper flags
+    # Build command with HTML mode
     cmd = [
         sys.executable, "-m", "pygbag",
-        "--app_name", "EndlessShooter",
+        "--html",  # Build as HTML with embedded assets
         "--title", "Endless Top-Down Shooter",
-        "--ume_block", "0",  # Don't block on user media
-        "--can_close", "1",  # Allow window to close
-        "--template", "default.tmpl",
-        "--archive",  # Create downloadable archive
+        "--no_opt",  # Turn off assets optimizer
+        "--bind", "0.0.0.0",  # Bind to all interfaces
         current_dir
     ]
     
