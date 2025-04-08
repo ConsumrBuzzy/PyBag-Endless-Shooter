@@ -13,13 +13,15 @@ def main():
     # Get the directory containing main.py
     current_dir = os.path.dirname(os.path.abspath(__file__))
     
-    # Build command with HTML mode
+    # Build command for pygame-script mode
     cmd = [
         sys.executable, "-m", "pygbag",
         "--html",  # Build as HTML with embedded assets
         "--title", "Endless Top-Down Shooter",
-        "--no_opt",  # Turn off assets optimizer
-        "--bind", "0.0.0.0",  # Bind to all interfaces
+        "--cdn", "https://pygame-web.github.io/archives/0.6/",  # Use older version
+        "--package", "endless_shooter",  # Unique package name
+        "--bind", "localhost",  # Local testing only
+        "--port", "8000",  # Explicit port
         current_dir
     ]
     
