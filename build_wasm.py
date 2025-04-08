@@ -13,8 +13,17 @@ def main():
     # Get the directory containing main.py
     current_dir = os.path.dirname(os.path.abspath(__file__))
     
-    # Simple build command
-    cmd = [sys.executable, "-m", "pygbag", current_dir]
+    # Build command with proper flags
+    cmd = [
+        sys.executable, "-m", "pygbag",
+        "--app_name", "EndlessShooter",
+        "--title", "Endless Top-Down Shooter",
+        "--ume_block", "0",  # Don't block on user media
+        "--can_close", "1",  # Allow window to close
+        "--template", "default.tmpl",
+        "--archive",  # Create downloadable archive
+        current_dir
+    ]
     
     print("Building WASM version...")
     subprocess.run(cmd)
