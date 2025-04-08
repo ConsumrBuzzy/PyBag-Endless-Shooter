@@ -14,10 +14,10 @@ def main():
     current_dir = os.path.dirname(os.path.abspath(__file__))
     
     # Build command
-    cmd = [sys.executable, "-m", "pygbag", "--app-name", "Endless Shooter", 
+    cmd = [sys.executable, "-m", "pygbag", 
+           "--app_name", "EndlessShooter", 
            "--title", "Endless Top-Down Shooter",
            "--cache", "true",
-           "--template", "web",
            current_dir]
     
     print("Building WASM version...")
