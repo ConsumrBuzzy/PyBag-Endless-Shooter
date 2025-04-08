@@ -8,8 +8,11 @@ import platform
 # Initialize Pygame
 pygame.init()
 
-# Set up display
-screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
+# Set up display with WASM-compatible flags
+flags = pygame.SCALED
+if sys.platform == "emscripten":
+    flags |= pygame.FULLSCREEN
+screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT), flags)
 pygame.display.set_caption("Endless Top-Down Shooter")
 
 # --- Constants ---
@@ -284,6 +287,9 @@ pygame.time.set_timer(pygame.USEREVENT, SPAWN_RATE)
 
 # --- Game Loop ---
 async def main():
+    # For WASM compatibility, ensure we're properly initialized
+    await asyncio.sleep(0)
+    
     # Initialize sprite groups
     all_sprites = pygame.sprite.Group()
     enemies = pygame.sprite.Group()
