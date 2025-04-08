@@ -5,31 +5,11 @@ import asyncio
 import sys
 import platform
 
-# Initialize Pygame
+# Initialize Pygame with basic setup
 pygame.init()
 
-# Set up display with WASM-compatible flags
-flags = pygame.SCALED | pygame.RESIZABLE
-
-# Handle WASM-specific setup
-if sys.platform == "emscripten":
-    import platform
-    import asyncio
-    import javascript
-    
-    # Set window size for web
-    browser_window = javascript.window
-    width = int(browser_window.innerWidth * 0.95)
-    height = int(browser_window.innerHeight * 0.95)
-    
-    # Ensure dimensions are valid
-    width = max(800, min(width, 1200))
-    height = max(600, min(height, 800))
-    
-    screen = pygame.display.set_mode((width, height), flags)
-else:
-    screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT), flags)
-
+# Set up display with basic flags
+screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT), pygame.SCALED)
 pygame.display.set_caption("Endless Top-Down Shooter")
 
 # --- Constants ---
@@ -304,12 +284,6 @@ pygame.time.set_timer(pygame.USEREVENT, SPAWN_RATE)
 
 # --- Game Loop ---
 async def main():
-    # For WASM compatibility, ensure we're properly initialized
-    if sys.platform == "emscripten":
-        # Wait for context to be fully initialized
-        for i in range(3):
-            await asyncio.sleep(0)
-    
     # Initialize sprite groups
     all_sprites = pygame.sprite.Group()
     enemies = pygame.sprite.Group()
