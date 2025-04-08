@@ -2,6 +2,8 @@ import pygame
 import random
 import math
 import asyncio
+import sys
+import platform
 
 # Initialize Pygame
 pygame.init()
@@ -294,13 +296,27 @@ pygame.time.set_timer(pygame.USEREVENT, SPAWN_RATE)
 
 # --- Game Loop ---
 async def main():
-    running = True
-    score = 0
-    game_over = False
-    font = pygame.font.Font(None, 36)
+    # Initialize sprite groups
+    all_sprites = pygame.sprite.Group()
+    enemies = pygame.sprite.Group()
+    bullets = pygame.sprite.Group()
+    explosions = pygame.sprite.Group()
+    
+    # Create player
+    player = Player()
+    all_sprites.add(player)
+    
+    # Create debug button
     debug_button = DebugButton()
-
+    
+    # Game loop
+    running = True
+    last_spawn = pygame.time.get_ticks()
+    score = 0
+    
     while running:
+        await asyncio.sleep(0)  # Required for WASM compatibility
+
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 running = False
@@ -388,4 +404,7 @@ async def main():
     pygame.quit()
 
 if __name__ == "__main__":
+    if sys.platform == "emscripten" or 'wasm' in platform.machine():
+        # WASM-specific setup if needed
+        pass
     asyncio.run(main())
