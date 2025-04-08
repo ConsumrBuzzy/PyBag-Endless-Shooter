@@ -8,9 +8,14 @@ import platform
 # Initialize Pygame with basic setup
 pygame.init()
 
-# Set up display with basic flags
-screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT), pygame.SCALED)
+# Basic display setup that works well with older pygbag
+screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
 pygame.display.set_caption("Endless Top-Down Shooter")
+
+# For older pygbag compatibility
+if sys.platform == "emscripten":
+    import platform
+    import asyncio
 
 # --- Constants ---
 SCREEN_WIDTH = 800
@@ -392,4 +397,9 @@ async def main():
     pygame.quit()
 
 if __name__ == "__main__":
-    asyncio.run(main())
+    if sys.platform == "emscripten":
+        # For older pygbag, we need to handle this differently
+        asyncio.ensure_future(main())
+        asyncio.get_event_loop().run_forever()
+    else:
+        asyncio.run(main())
