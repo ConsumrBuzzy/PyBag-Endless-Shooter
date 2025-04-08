@@ -13,11 +13,15 @@ def main():
     # Get the directory containing main.py
     current_dir = os.path.dirname(os.path.abspath(__file__))
     
-    # Build command
-    cmd = [sys.executable, "-m", "pygbag", 
-           "--app_name", "EndlessShooter", 
+    # Build command with web-specific options
+    cmd = [sys.executable, "-m", "pygbag",
+           "--app_name", "EndlessShooter",
            "--title", "Endless Top-Down Shooter",
            "--cache", "true",
+           "--ume_block", "0",   # Don't block on user media
+           "--can_close", "1",   # Allow window to close
+           "--archive", "1",     # Create downloadable archive
+           "--bind", "0.0.0.0",  # Bind to all interfaces
            current_dir]
     
     print("Building WASM version...")
