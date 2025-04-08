@@ -5,20 +5,12 @@ import asyncio
 import sys
 import platform
 
-# Initialize Pygame with web-specific handling
+# Initialize Pygame
 pygame.init()
 
-# Web-specific initialization
-if sys.platform == "emscripten":
-    import platform
-    import asyncio
-    # Set display mode for web
-    canvas = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT), pygame.SCALED)
-    pygame.display.set_caption("Endless Top-Down Shooter")
-else:
-    # Normal desktop initialization
-    screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
-    pygame.display.set_caption("Endless Top-Down Shooter")
+# Set up display
+screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
+pygame.display.set_caption("Endless Top-Down Shooter")
 
 # --- Constants ---
 SCREEN_WIDTH = 800
@@ -40,20 +32,6 @@ GREEN = (0, 255, 0)
 BLUE = (0, 0, 255)
 YELLOW = (255, 255, 0)
 FPS = 60
-
-# --- Helper Functions ---
-# def load_sound(file_name): # Removed load_sound
-#     """Load a sound file.  Handles errors."""
-#     try:
-#         sound = pygame.mixer.Sound(file_name)
-#         return sound
-#     except pygame.error:
-#         print(f"Error loading sound: {file_name}")
-#         # Return a dummy sound object.  This way, the game doesn't crash.
-#         class DummySound:
-#             def play(self): pass
-#             def stop(self): pass
-#         return DummySound()
 
 def distance(x1, y1, x2, y2):
     return math.sqrt((x2 - x1) ** 2 + (y2 - y1) ** 2)
@@ -414,7 +392,4 @@ async def main():
     pygame.quit()
 
 if __name__ == "__main__":
-    if sys.platform == "emscripten" or 'wasm' in platform.machine():
-        # WASM-specific setup if needed
-        pass
     asyncio.run(main())
